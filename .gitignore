@@ -1,4 +1,5 @@
 /resources/
 /vendor/
 composer.lock
-
+*.json
+.env
