@@ -8,11 +8,11 @@
     ],
     "license": "MIT",
     "require": {
-        "emteknetnz/silverstripe-data-fetcher": "^0.4.10"
+        "emteknetnz/silverstripe-data-fetcher": "^0.4.11"
     },
     "autoload": {
         "psr-4": {
-            "emteknetnz\\CowAutoPat\\": "src"
+            "emteknetnz\\CowAutoPat\\": "app/src"
         }
     }
 }
