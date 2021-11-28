@@ -26,7 +26,7 @@ function createReleaseSample() {
 
 function getPriorVersions($name, $data) {
     global $priorVersions;
-    $priorVersions[$name] = $data->PriorVersion;
+    $priorVersions[$name] = $data->Version;
     foreach ((array) $data->Items ?? [] as $name => $data) {
         getPriorVersions($name, $data);
     }
