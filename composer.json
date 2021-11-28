@@ -1,0 +1,18 @@
+{
+    "name": "emteknetnz/cow-auto-pat",
+    "authors": [
+        {
+            "name": "Steve Boyd",
+            "email": "emteknetnz@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "emteknetnz/silverstripe-data-fetcher": "^0.4.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "emteknetnz\\CowAutoPat\\": "src"
+        }
+    }
+}
