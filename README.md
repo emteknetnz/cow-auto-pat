@@ -8,7 +8,7 @@ Add the following files to the root folder
 
 Will create output.json
 
-Add the following to .env
+Add the following to .credentials
 GITHUB_USER="abc"
 GITHUB_TOKEN="def"
 
