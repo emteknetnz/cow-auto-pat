@@ -1,6 +1,7 @@
 <?php
 
 $priorVersions = [];
+$oldMajors = [];
 
 function getPriorVersions($name, $data) {
     global $priorVersions;
@@ -20,8 +21,7 @@ function updatePriorVersions($name, &$data) {
 
 function updateMinorTags($name, &$data, $tagSuffix) {
     $upgradeOnly = $data->UpgradeOnly ?? false;
-    list($account, $repo) = getAccountRepo($name);
-    $data->Version = getNextMinorTag($account, $repo, $upgradeOnly, $tagSuffix);
+    $data->Version = getNextMinorTag($name, $upgradeOnly, $tagSuffix);
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updateMinorTags($name, $_data, $tagSuffix);
     }
@@ -124,7 +124,10 @@ function fetch($path) {
     return $json;
 }
 
-function getNextMinorTag($account, $repo, $upgradeOnly, $tagSuffix) {
+function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
+    global $priorVersions;
+    $oldMajor = substr($priorVersions[$name], 0, 1);
+    list($account, $repo) = getAccountRepo($name);
     $json = fetch("/repos/$account/$repo/tags");
     $vals = [];
     foreach ($json as $tag) {
@@ -133,22 +136,26 @@ function getNextMinorTag($account, $repo, $upgradeOnly, $tagSuffix) {
         if (!preg_match('#^([1-9])\.([0-9]+)\.([0-9]+)$#', $name, $m)) {
             continue;
         }
+        if ($m[1] != $oldMajor) {
+            continue;
+        }
         $vals[] = $m[1] * 10000 + $m[2] * 100 + $m[3];
     }
     sort($vals);
     $vals = array_reverse($vals);
     $val = $vals[0];
     $major = floor($val / 10000);
-    $minor = floor(($val % 10000 ) / 100);
+    $minor = floor(($val % 10000) / 100);
     $patch = ($val % 10000) % 100;
     if ($upgradeOnly) {
-        return $major . '.' . $minor . $patch;
+        return $major . '.' . $minor . '.' . $patch;
     } else {
         return $major . '.' . ($minor + 1) . '.0' . $tagSuffix;
     }
 }
 
-$tagSuffix = $argv[1] ? '-' . $argv[1] : '';
+// RUN
+$tagSuffix = count($argv) > 1 ? '-' . $argv[1] : '';
 
 $json = json_decode(file_get_contents('.cow.pat.json'));
 $prior = json_decode(file_get_contents('.prior.cow.pat.json'));
