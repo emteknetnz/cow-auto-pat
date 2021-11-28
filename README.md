@@ -1,15 +1,31 @@
 ## cow-auto-pat
 
-Automatically fill in prior versions and fetch new versions from GitHub API
+Use during `silverstripe/recipe-kitchen-sink` release to update `.cow.pat.json`
+- fill in prior versions
+- work out next mionr version from GitHub API
 
-Add the following files to the root folder
-.cow.pat.json
-.prior.cow.path.json
+### Setup
 
-Will create output.json
+Add the following files to the root folder:
+- `.cow.pat.json`
+- `.prior.cow.path.json`
 
-Add the following to .credentials
-GITHUB_USER="abc"
-GITHUB_TOKEN="def"
+Create the file `.credentials`
+```
+user=my_github_username
+token=abcdef123456
+```
 
-vendor/bin/sake dev/tasks/UpdateTask
+### Usage
+`php run.php`
+
+Will create `output.json` - use this as your new `.cow.pat.json`
+
+### Option tag suffix
+
+`php run.php beta1`
+
+`php run.php rc1`
+
+
+
