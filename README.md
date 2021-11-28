@@ -2,19 +2,24 @@
 
 Use during `silverstripe/recipe-kitchen-sink` release to update `.cow.pat.json`
 - fill in prior versions
-- work out next mionr version from GitHub API
+- work out next minor version from GitHub API
 
 ### Setup
 
 Add the following files to the root folder:
 - `.cow.pat.json`
-- `.prior.cow.path.json`
+- `.prior.cow.pat.json`
 
 Create the file `.credentials`
 ```
 user=my_github_username
 token=abcdef123456
 ```
+
+Copy the file `release.sample.txt` to `release.txt` and set `1` (yes) or `0` (no) for the modules you wish to release.
+`U` (upgarde-only) moduels will never release.  `0` and `U` modules will use the latest availabe tag for the current major
+
+There's some code within run.php to regenerate `release.sample.txt` if needed
 
 ### Usage
 `php run.php`
@@ -26,6 +31,3 @@ Will create `output.json` - use this as your new `.cow.pat.json`
 `php run.php beta1`
 
 `php run.php rc1`
-
-
-

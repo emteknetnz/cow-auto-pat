@@ -2,6 +2,27 @@
 
 $priorVersions = [];
 $oldMajors = [];
+$release = [];
+$lines = [];
+
+if (file_exists('release.txt')) {
+    foreach (explode("\n", file_get_contents('release.txt')) as $line) {
+        if (strpos($line, ',') === false) {
+            continue;
+        }
+        list($name, $doRelease) = explode(',', $line);
+        $release[$name] = $doRelease;
+    }
+}
+
+function createReleaseSample() {
+    global $json, $lines;
+    foreach((array) $json as $name => $data) {
+        outputRelease($name, $data);
+    }
+    sort($lines);
+    file_put_contents('release.sample.txt', implode("\n", $lines));
+}
 
 function getPriorVersions($name, $data) {
     global $priorVersions;
@@ -24,6 +45,47 @@ function updateMinorTags($name, &$data, $tagSuffix) {
     $data->Version = getNextMinorTag($name, $upgradeOnly, $tagSuffix);
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updateMinorTags($name, $_data, $tagSuffix);
+    }
+}
+
+function outputRelease($name, &$data) {
+    global $lines;
+    $alwaysRelease = [
+        // LOCKSTEP RECIPES
+        'silverstripe/recipe-authoring-tools',
+        'silverstripe/recipe-blog',
+        // 'silverstripe/recipe-ccl',
+        'silverstripe/recipe-cms',
+        'silverstripe/recipe-collaboration',
+        'silverstripe/recipe-content-blocks',
+        'silverstripe/recipe-core',
+        'silverstripe/recipe-form-building',
+        'silverstripe/recipe-kitchen-sink',
+        'silverstripe/recipe-reporting-tools',
+        'silverstripe/recipe-services',
+        // 'silverstripe/recipe-solr-search',
+        'silverstripe/installer',
+        // LOCKSTEP CORE MODULES
+        'silverstripe/framework',
+        'silverstripe/assets',
+        'silverstripe/versioned',
+        'silverstripe/admin',
+        'silverstripe/asset-admin',
+        'silverstripe/versioned-admin',
+        'silverstripe/campaign-admin',
+        'silverstripe/cms',
+        'silverstripe/reports',
+        'silverstripe/errorpoage',
+        'silverstripe/siteconfig',
+    ];
+    if ($data->UpgradeOnly ?? false) {
+        $lines[] = "$name,U";
+    } else {
+        $doRelease = in_array($name, $alwaysRelease) ? '1' : '0';
+        $lines[] = "$name,$doRelease";
+    }
+    foreach ((array) $data->Items ?? [] as $name => &$_data) {
+        outputRelease($name, $_data);
     }
 }
 
@@ -125,15 +187,15 @@ function fetch($path) {
 }
 
 function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
-    global $priorVersions;
+    global $priorVersions, $release;
     $oldMajor = substr($priorVersions[$name], 0, 1);
     list($account, $repo) = getAccountRepo($name);
     $json = fetch("/repos/$account/$repo/tags");
     $vals = [];
     foreach ($json as $tag) {
-        $name = $tag->name;
-        $name = preg_replace('#[^0-9\.]#', '', $name);
-        if (!preg_match('#^([1-9])\.([0-9]+)\.([0-9]+)$#', $name, $m)) {
+        $tagName = $tag->name;
+        $tagName = preg_replace('#[^0-9\.]#', '', $tagName);
+        if (!preg_match('#^([1-9])\.([0-9]+)\.([0-9]+)$#', $tagName, $m)) {
             continue;
         }
         if ($m[1] != $oldMajor) {
@@ -147,7 +209,8 @@ function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
     $major = floor($val / 10000);
     $minor = floor(($val % 10000) / 100);
     $patch = ($val % 10000) % 100;
-    if ($upgradeOnly) {
+    $doRelease = $release[$name] ?? '0';
+    if ($upgradeOnly || $doRelease != '1') {
         return $major . '.' . $minor . '.' . $patch;
     } else {
         return $major . '.' . ($minor + 1) . '.0' . $tagSuffix;
@@ -159,6 +222,9 @@ $tagSuffix = count($argv) > 1 ? '-' . $argv[1] : '';
 
 $json = json_decode(file_get_contents('.cow.pat.json'));
 $prior = json_decode(file_get_contents('.prior.cow.pat.json'));
+
+// uncomment this to regenerate release.sample.txt
+// createReleaseSample(); die;
 
 // get prior versions
 foreach((array) $prior as $name => $data) {
