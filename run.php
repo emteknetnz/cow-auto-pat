@@ -190,8 +190,6 @@ function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
     global $priorVersions, $release;
     $oldMajor = substr($priorVersions[$name], 0, 1);
     list($account, $repo) = getAccountRepo($name);
-    // sboyd
-    if ($name != 'cwp/starter-theme') return '1.2.3';
     $json = fetch("/repos/$account/$repo/tags");
     $vals = [];
     foreach ($json as $tag) {
