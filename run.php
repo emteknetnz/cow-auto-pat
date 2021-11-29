@@ -190,12 +190,13 @@ function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
     global $priorVersions, $release;
     $oldMajor = substr($priorVersions[$name], 0, 1);
     list($account, $repo) = getAccountRepo($name);
+    // sboyd
+    if ($name != 'cwp/starter-theme') return '1.2.3';
     $json = fetch("/repos/$account/$repo/tags");
     $vals = [];
     foreach ($json as $tag) {
         $tagName = $tag->name;
-        $tagName = preg_replace('#[^0-9\.]#', '', $tagName);
-        if (!preg_match('#^([1-9])\.([0-9]+)\.([0-9]+)$#', $tagName, $m)) {
+        if (!preg_match('#^([1-9])\.([0-9]+)\.([0-9]+)#', $tagName, $m)) {
             continue;
         }
         if ($m[1] != $oldMajor) {
@@ -203,6 +204,7 @@ function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
         }
         $vals[] = $m[1] * 10000 + $m[2] * 100 + $m[3];
     }
+    $vals = array_unique($vals);
     sort($vals);
     $vals = array_reverse($vals);
     $val = $vals[0];
