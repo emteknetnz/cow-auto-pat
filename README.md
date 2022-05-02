@@ -7,8 +7,8 @@ Use during `silverstripe/recipe-kitchen-sink` release to update `.cow.pat.json`
 ### Setup
 
 Add the following files to the root folder:
-- `.cow.pat.json`
-- `.prior.cow.pat.json`
+- `.cow.pat.json` - this is whatever cow spits out first time after release:plan, it'll be wrong
+- `.prior.cow.pat.json` - copy paste the .cow.pat.json from confluence of the previous stable release
 
 Create the file `.credentials`
 ```

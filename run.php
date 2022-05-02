@@ -54,7 +54,7 @@ function outputRelease($name, &$data) {
         // LOCKSTEP RECIPES
         'silverstripe/recipe-authoring-tools',
         'silverstripe/recipe-blog',
-        // 'silverstripe/recipe-ccl',
+        'silverstripe/recipe-ccl',
         'silverstripe/recipe-cms',
         'silverstripe/recipe-collaboration',
         'silverstripe/recipe-content-blocks',
@@ -63,7 +63,7 @@ function outputRelease($name, &$data) {
         'silverstripe/recipe-kitchen-sink',
         'silverstripe/recipe-reporting-tools',
         'silverstripe/recipe-services',
-        // 'silverstripe/recipe-solr-search',
+        'silverstripe/recipe-solr-search',
         'silverstripe/installer',
         // LOCKSTEP CORE MODULES
         'silverstripe/framework',

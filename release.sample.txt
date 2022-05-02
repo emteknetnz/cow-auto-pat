@@ -45,7 +45,7 @@ silverstripe/mimevalidator,0
 silverstripe/realme,0
 silverstripe/recipe-authoring-tools,1
 silverstripe/recipe-blog,1
-silverstripe/recipe-ccl,0
+silverstripe/recipe-ccl,1
 silverstripe/recipe-cms,1
 silverstripe/recipe-collaboration,1
 silverstripe/recipe-content-blocks,1
@@ -54,7 +54,7 @@ silverstripe/recipe-form-building,1
 silverstripe/recipe-kitchen-sink,1
 silverstripe/recipe-reporting-tools,1
 silverstripe/recipe-services,1
-silverstripe/recipe-solr-search,0
+silverstripe/recipe-solr-search,1
 silverstripe/registry,0
 silverstripe/reports,1
 silverstripe/restfulserver,0
