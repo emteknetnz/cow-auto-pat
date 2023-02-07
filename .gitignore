@@ -3,3 +3,4 @@
 .credentials
 *.json
 release.txt
+debug

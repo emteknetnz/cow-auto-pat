@@ -5,6 +5,12 @@ $oldMajors = [];
 $release = [];
 $lines = [];
 
+$j = json_decode(file_get_contents('.cow.pat.json'));
+$v = $j->{'silverstripe/recipe-kitchen-sink'}->Version;
+$is500release = preg_match('#^5\.0\.0#', $v);
+$b = preg_match('#-(beta1|beta2|beta3|rc1|rc2|rc3)$#', $v, $m);
+$x500suffix = $b ? '-' . $m[1] : '';
+
 if (file_exists('release.txt')) {
     foreach (explode("\n", file_get_contents('release.txt')) as $line) {
         if (strpos($line, ',') === false) {
@@ -33,16 +39,39 @@ function getPriorVersions($name, $data) {
 }
 
 function updatePriorVersions($name, &$data) {
-    global $priorVersions;
+    global $priorVersions, $is500release;
     $data->PriorVersion = $priorVersions[$name] ?? null;
+    if (!isset($priorVersions[$name]) && $is500release) {
+        if ($name == 'silverstripe/vendor-plugin') {
+            $data->PriorVersion = '1.6.0';
+        }
+        if ($name == 'silverstripe/silverstripe-fluent') {
+            $data->PriorVersion = '4.7.0';
+        }
+    }
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updatePriorVersions($name, $_data);
     }
 }
 
 function updateMinorTags($name, &$data, $tagSuffix) {
+    global $is500release, $x500suffix;
     $upgradeOnly = $data->UpgradeOnly ?? false;
-    $data->Version = getNextMinorTag($name, $upgradeOnly, $tagSuffix);
+    if ($is500release) {
+        if ($name == 'silverstripe/vendor-plugin') {
+            $data->Version = '2.0.0';
+        }
+        if ($name == 'silverstripe/silverstripe-fluent') {
+            $data->Version = '7.0.0';
+        } else {
+            // no change
+        }
+        if (!preg_match("#{$x500suffix}$#", $data->Version)) {
+            $data->Version .= $x500suffix;
+        }
+    } else {
+        $data->Version = getNextMinorTag($name, $upgradeOnly, $tagSuffix);
+    }
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updateMinorTags($name, $_data, $tagSuffix);
     }
@@ -89,6 +118,7 @@ function outputRelease($name, &$data) {
     }
 }
 
+// $name = composer name e.g. silverstripe/admin
 function getAccountRepo($name) {
     list($account, $repo) = explode('/', $name);
     if ($account == 'silverstripe') {
@@ -97,7 +127,12 @@ function getAccountRepo($name) {
             return [$account, $repo];
         }
         // module not prefixed with 'silverstripe-'
-        if (in_array($repo, ['comment-notifications'])) {
+        if (in_array($repo, [
+            'comment-notifications',
+            'vendor-plugin',
+            // silverstripe/silverstripe-fluent fork
+            'silverstripe-fluent'
+        ])) {
             return [$account, $repo];
         }
         return ['silverstripe', 'silverstripe-' . $repo];
@@ -183,6 +218,12 @@ function fetch($path) {
     $s = curl_exec($ch);
     curl_close($ch);
     $json = json_decode($s);
+    $p = str_replace('/', '-', $path);
+    if (is_object($json)) {
+        file_put_contents("debug/$p.json", json_encode($json, 448));
+    } else {
+        file_put_contents("debug/$p.json", $s);
+    }
     return $json;
 }
 
@@ -218,6 +259,11 @@ function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
 }
 
 // RUN
+if (file_exists('debug')) {
+    shell_exec('rm -rf debug');
+}
+mkdir('debug');
+
 $tagSuffix = count($argv) > 1 ? '-' . $argv[1] : '';
 
 $json = json_decode(file_get_contents('.cow.pat.json'));
@@ -240,3 +286,4 @@ foreach((array) $json as $name => &$data) {
 }
 
 file_put_contents('output.json', str_replace('\/', '/', json_encode($json, JSON_PRETTY_PRINT)));
+echo "Wrote to output.json\n";
