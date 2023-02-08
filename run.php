@@ -54,6 +54,15 @@ function updatePriorVersions($name, &$data) {
         if ($name == 'colymba/gridfield-bulk-editing-tools') {
             $data->PriorVersion = '3.0.2';
         }
+        if ($name == 'silverstripe/lumberjack') {
+            $data->PriorVersion = '2.2.0';
+        }
+        if ($name == 'silverstripe/staticpublishqueue') {
+            $data->PriorVersion = '5.3.0';
+        }
+        if ($name == 'symbiote/silverstripe-gridfieldextensions') {
+            $data->PriorVersion = '3.5.0';
+        }
     }
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updatePriorVersions($name, $_data);
