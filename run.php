@@ -45,8 +45,14 @@ function updatePriorVersions($name, &$data) {
         if ($name == 'silverstripe/vendor-plugin') {
             $data->PriorVersion = '1.6.0';
         }
+        if ($name == 'silverstripe/recipe-plugin') {
+            $data->PriorVersion = '1.7.0';
+        }
         if ($name == 'silverstripe/silverstripe-fluent') {
             $data->PriorVersion = '4.7.0';
+        }
+        if ($name == 'colymba/gridfield-bulk-editing-tools') {
+            $data->PriorVersion = '3.0.2';
         }
     }
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
@@ -61,12 +67,15 @@ function updateMinorTags($name, &$data, $tagSuffix) {
         if ($name == 'silverstripe/vendor-plugin') {
             $data->Version = '2.0.0';
         }
+        if ($name == 'silverstripe/recipe-plugin') {
+            $data->Version = '2.0.0';
+        }
         if ($name == 'silverstripe/silverstripe-fluent') {
             $data->Version = '7.0.0';
         } else {
             // no change
         }
-        if (!preg_match("#{$x500suffix}$#", $data->Version)) {
+        if (!preg_match("#{$x500suffix}$#", $data->Version) && !$data->UpgradeOnly) {
             $data->Version .= $x500suffix;
         }
     } else {
