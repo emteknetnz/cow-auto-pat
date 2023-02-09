@@ -341,6 +341,10 @@ foreach (explode("\n", file_get_contents('output.json')) as $line) {
 }
 ksort($v1s);
 ksort($v2s);
+
+$vs = array_merge($v1s, $v2s);
+ksort($vs);
+
 $l = [
     '<details>',
     '<summary>Included module versions</summary>',
@@ -348,24 +352,25 @@ $l = [
     '| Module | Version |',
     '| ------ | ------- |',
 ];
-foreach ($v1s as $n => $v) {
+// foreach ($v1s as $n => $v) {
+//     $l[] = "| $n | $v |";
+// }
+// $l[] = '';
+// $l[] = '</details>';
+// $l[] = '<details>';
+// $l[] = '<summary>Supported module versions</summary>';
+// $l[] = '';
+// $l[] = '| Module | Version |';
+// $l[] = '| ------ | ------- |';
+// foreach ($v2s as $n => $v) {
+//     $l[] = "| $n | $v |";
+// }
+foreach ($vs as $n => $v) {
     $l[] = "| $n | $v |";
 }
 $l[] = '';
 $l[] = '</details>';
-$l[] = '<details>';
-$l[] = '<summary>Supported module versions</summary>';
 $l[] = '';
-$l[] = '| Module | Version |';
-$l[] = '| ------ | ------- |';
-foreach ($v2s as $n => $v) {
-    $l[] = "| $n | $v |";
-}
-$l[] = '';
-$l[] = '</details>';
-$l[] = '';
-
-print_r($l);
 
 $f = 'changelog-table.txt';
 file_put_contents($f, implode("\n", $l));
