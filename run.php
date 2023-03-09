@@ -149,7 +149,8 @@ function getAccountRepo($name) {
             'comment-notifications',
             'vendor-plugin',
             // silverstripe/silverstripe-fluent fork
-            'silverstripe-fluent'
+            'silverstripe-fluent',
+            'developer-docs',
         ])) {
             return [$account, $repo];
         }
@@ -216,14 +217,14 @@ function fetch($path) {
     $path = ltrim($path, '/');
     if (preg_match('#/[0-9]+$#', $path) || preg_match('@/[0-9]+/files$@', $path)) {
         // requesting details
-        $url = "${$domain}/${$path}";
+        $url = "{$domain}/{$path}";
     } else {
         // requesting a list
         $op = strpos($path, '?') ? '&' : '?';
-        $url = "${domain}/${path}${op}per_page=100";
+        $url = "{$domain}/{$path}{$op}per_page=100";
     }
     $label = str_replace($domain, '', $url);
-    echo "Fetching from ${label}\n";
+    echo "Fetching from {$label}\n";
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_USERPWD, getCredentials());
@@ -315,6 +316,7 @@ $a = [
     'silverstripe/config',
     'silverstripe/errorpage',
     'silverstripe/framework',
+    'silverstripe/developer-docs',
     'silverstripe/graphql',
     'silverstripe/login-forms',
     'silverstripe/mimevalidator',
