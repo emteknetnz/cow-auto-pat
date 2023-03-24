@@ -196,6 +196,12 @@ function getCredentials() {
         $value = $kv[1];
         $data[$key] = $value;
     }
+    if (!$data['user']) {
+        throw new Exception('.credentials is missing user=<user>');
+    }
+    if (!$data['token']) {
+        throw new Exception('.credentials is missing token=<token>');
+    }
     return $data['user'] . ':' . $data['token'];
 }
 
