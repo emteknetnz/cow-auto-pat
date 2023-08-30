@@ -97,6 +97,9 @@ function outputRelease($name, &$data) {
 // $name = composer name e.g. silverstripe/admin
 function getAccountRepo($name) {
     list($account, $repo) = explode('/', $name);
+    if ($account == 'silverstripe-themes') {
+        $account = 'silverstripe';
+    }
     if ($account == 'silverstripe') {
         // recipe- prefix
         if (strpos($repo, 'recipe') === 0) {
