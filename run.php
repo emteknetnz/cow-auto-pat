@@ -209,7 +209,7 @@ function fetch($path) {
     $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     if ($responseCode != 200) {
-        throw new RuntimeException("Couldn't fetch - got response code $responseCode\n");
+        throw new RuntimeException("Couldn't fetch - got response code $responseCode");
     }
     $json = json_decode($s);
     $p = str_replace('/', '-', $path);
