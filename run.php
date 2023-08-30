@@ -21,7 +21,8 @@ if (file_exists('release.txt')) {
 }
 
 function createReleaseSample() {
-    global $json, $lines;
+    $json = json_decode(file_get_contents('output.json'));
+    global $lines;
     foreach((array) $json as $name => $data) {
         outputRelease($name, $data);
     }
@@ -82,6 +83,8 @@ function outputRelease($name, &$data) {
         'silverstripe/reports',
         'silverstripe/errorpoage',
         'silverstripe/siteconfig',
+        // ALSO ALWAYS RELEASE
+        'silverstripe/developer-docs',
     ];
     if ($data->UpgradeOnly ?? false) {
         $lines[] = "$name,U";
