@@ -26,8 +26,4 @@ There's some code within run.php to regenerate `release.sample.txt` if needed
 
 Will create `output.json` - use this as your new `.cow.pat.json`
 
-### Option tag suffix
-
-`php run.php beta1`
-
-`php run.php rc1`
+The correct pre-stable suffix (if any) will be taken from the version of `silverstripe/recipe-kitchen-sink` in the `.cow.pat.json` file.
