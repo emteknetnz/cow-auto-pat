@@ -7,9 +7,8 @@ $lines = [];
 
 $j = json_decode(file_get_contents('.cow.pat.json'));
 $v = $j->{'silverstripe/recipe-kitchen-sink'}->Version;
-$is500release = preg_match('#^5\.0\.0#', $v);
 $b = preg_match('#-(beta1|beta2|beta3|rc1|rc2|rc3)$#', $v, $m);
-$x500suffix = $b ? '-' . $m[1] : '';
+$tagSuffix = $b ? '-' . $m[1] : '';
 
 if (file_exists('release.txt')) {
     foreach (explode("\n", file_get_contents('release.txt')) as $line) {
@@ -39,57 +38,16 @@ function getPriorVersions($name, $data) {
 }
 
 function updatePriorVersions($name, &$data) {
-    global $priorVersions, $is500release;
+    global $priorVersions;
     $data->PriorVersion = $priorVersions[$name] ?? null;
-    if (!isset($priorVersions[$name]) && $is500release) {
-        if ($name == 'silverstripe/vendor-plugin') {
-            $data->PriorVersion = '1.6.0';
-        }
-        if ($name == 'silverstripe/recipe-plugin') {
-            $data->PriorVersion = '1.7.0';
-        }
-        if ($name == 'silverstripe/silverstripe-fluent') {
-            $data->PriorVersion = '4.7.0';
-        }
-        if ($name == 'colymba/gridfield-bulk-editing-tools') {
-            $data->PriorVersion = '3.0.2';
-        }
-        if ($name == 'silverstripe/lumberjack') {
-            $data->PriorVersion = '2.2.0';
-        }
-        if ($name == 'silverstripe/staticpublishqueue') {
-            $data->PriorVersion = '5.3.0';
-        }
-        if ($name == 'symbiote/silverstripe-gridfieldextensions') {
-            $data->PriorVersion = '3.5.0';
-        }
-    }
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updatePriorVersions($name, $_data);
     }
 }
 
 function updateMinorTags($name, &$data, $tagSuffix) {
-    global $is500release, $x500suffix;
     $upgradeOnly = $data->UpgradeOnly ?? false;
-    if ($is500release) {
-        if ($name == 'silverstripe/vendor-plugin') {
-            $data->Version = '2.0.0';
-        }
-        if ($name == 'silverstripe/recipe-plugin') {
-            $data->Version = '2.0.0';
-        }
-        if ($name == 'silverstripe/silverstripe-fluent') {
-            $data->Version = '7.0.0';
-        } else {
-            // no change
-        }
-        if (!preg_match("#{$x500suffix}$#", $data->Version) && !$data->UpgradeOnly) {
-            $data->Version .= $x500suffix;
-        }
-    } else {
-        $data->Version = getNextMinorTag($name, $upgradeOnly, $tagSuffix);
-    }
+    $data->Version = getNextMinorTag($name, $upgradeOnly, $tagSuffix);
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updateMinorTags($name, $_data, $tagSuffix);
     }
@@ -296,8 +254,6 @@ if (file_exists('debug')) {
     shell_exec('rm -rf debug');
 }
 mkdir('debug');
-
-$tagSuffix = count($argv) > 1 ? '-' . $argv[1] : '';
 
 $json = json_decode(file_get_contents('.cow.pat.json'));
 $prior = json_decode(file_get_contents('.prior.cow.pat.json'));
