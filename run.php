@@ -175,6 +175,10 @@ function getAccountRepo($name) {
     if ($account == 'tractorcow' && $repo == 'silverstripe-fluent') {
         return ['tractorcow-farm', $repo];
     }
+    // colymba
+    if ($account == 'colymba' && $repo == 'gridfield-bulk-editing-tools') {
+        return ['colymba', 'GridFieldBulkEditingTools'];
+    }
     // everything else
     return [$account, $repo];
 }
@@ -241,7 +245,11 @@ function fetch($path) {
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     waitUntilCanFetch();
     $s = curl_exec($ch);
+    $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    if ($responseCode != 200) {
+        throw new RuntimeException("Couldn't fetch - got response code $responseCode\n");
+    }
     $json = json_decode($s);
     $p = str_replace('/', '-', $path);
     if (is_object($json)) {
