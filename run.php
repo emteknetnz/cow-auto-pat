@@ -47,7 +47,7 @@ function updatePriorVersions($name, &$data) {
 
 function updateMinorTags($name, &$data, $tagSuffix) {
     $upgradeOnly = $data->UpgradeOnly ?? false;
-    $data->Version = getNextMinorTag($name, $upgradeOnly, $tagSuffix);
+    $data->Version = getNextMinorTag($name, $data->Version, $upgradeOnly, $tagSuffix);
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updateMinorTags($name, $_data, $tagSuffix);
     }
@@ -218,9 +218,14 @@ function fetch($path) {
     return $json;
 }
 
-function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
+function getNextMinorTag($name, $cowpatVersion, $upgradeOnly, $tagSuffix) {
     global $priorVersions, $release;
-    $oldMajor = substr($priorVersions[$name], 0, 1);
+    if (!isset($priorVersions[$name])) {
+        $parts = explode('.', $cowpatVersion);
+        $oldMajor = array_shift($parts);
+    } else {
+        $oldMajor = substr($priorVersions[$name], 0, 1);
+    }
     list($account, $repo) = getAccountRepo($name);
     $json = fetch("/repos/$account/$repo/tags");
     $vals = [];
