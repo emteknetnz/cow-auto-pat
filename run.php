@@ -21,7 +21,8 @@ if (file_exists('release.txt')) {
 }
 
 function createReleaseSample() {
-    global $json, $lines;
+    $json = json_decode(file_get_contents('output.json'));
+    global $lines;
     foreach((array) $json as $name => $data) {
         outputRelease($name, $data);
     }
@@ -47,7 +48,7 @@ function updatePriorVersions($name, &$data) {
 
 function updateMinorTags($name, &$data, $tagSuffix) {
     $upgradeOnly = $data->UpgradeOnly ?? false;
-    $data->Version = getNextMinorTag($name, $upgradeOnly, $tagSuffix);
+    $data->Version = getNextMinorTag($name, $data->Version, $upgradeOnly, $tagSuffix);
     foreach ((array) $data->Items ?? [] as $name => &$_data) {
         updateMinorTags($name, $_data, $tagSuffix);
     }
@@ -82,6 +83,8 @@ function outputRelease($name, &$data) {
         'silverstripe/reports',
         'silverstripe/errorpoage',
         'silverstripe/siteconfig',
+        // ALSO ALWAYS RELEASE
+        'silverstripe/developer-docs',
     ];
     if ($data->UpgradeOnly ?? false) {
         $lines[] = "$name,U";
@@ -97,6 +100,9 @@ function outputRelease($name, &$data) {
 // $name = composer name e.g. silverstripe/admin
 function getAccountRepo($name) {
     list($account, $repo) = explode('/', $name);
+    if ($account == 'silverstripe-themes') {
+        $account = 'silverstripe';
+    }
     if ($account == 'silverstripe') {
         // recipe- prefix
         if (strpos($repo, 'recipe') === 0) {
@@ -206,7 +212,7 @@ function fetch($path) {
     $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     if ($responseCode != 200) {
-        throw new RuntimeException("Couldn't fetch - got response code $responseCode\n");
+        throw new RuntimeException("Couldn't fetch - got response code $responseCode");
     }
     $json = json_decode($s);
     $p = str_replace('/', '-', $path);
@@ -218,9 +224,14 @@ function fetch($path) {
     return $json;
 }
 
-function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
+function getNextMinorTag($name, $cowpatVersion, $upgradeOnly, $tagSuffix) {
     global $priorVersions, $release;
-    $oldMajor = substr($priorVersions[$name], 0, 1);
+    if (!isset($priorVersions[$name])) {
+        $parts = explode('.', $cowpatVersion);
+        $oldMajor = array_shift($parts);
+    } else {
+        $oldMajor = substr($priorVersions[$name], 0, 1);
+    }
     list($account, $repo) = getAccountRepo($name);
     $json = fetch("/repos/$account/$repo/tags");
     $vals = [];
@@ -249,6 +260,13 @@ function getNextMinorTag($name, $upgradeOnly, $tagSuffix) {
     }
 }
 
+function findAllCowpatModules($name, $data, &$output) {
+    $output[$name] = $data->Version;
+    foreach ((array) $data->Items ?? [] as $name => $data) {
+        findAllCowpatModules($name, $data, $output);
+    }
+}
+
 // RUN
 if (file_exists('debug')) {
     shell_exec('rm -rf debug');
@@ -273,77 +291,50 @@ foreach((array) $json as $name => &$data) {
 foreach((array) $json as $name => &$data) {
     updateMinorTags($name, $data, $tagSuffix);
 }
+// get the names and versions of all modules in the cowpat
+$cowpatModules = [];
+foreach((array) $json as $name => $data) {
+    findAllCowpatModules($name, $data, $cowpatModules);
+}
+
+// look for modules missing from release.txt or from cowpat
+$missingFromCowpat = array_diff(array_keys($release), array_keys($cowpatModules));
+$missingFromRelease = array_diff(array_keys($cowpatModules), array_keys($release));
+if (!empty($missingFromCowpat)) {
+    echo "WARNING!!! The following modules are missing from .cow.pat.json:\n";
+    foreach ($missingFromCowpat as $missingModule) {
+        echo "- $missingModule\n";
+    }
+}
+if (!empty($missingFromRelease)) {
+    echo "WARNING!!! The following modules are missing from release.txt:\n";
+    foreach ($missingFromRelease as $missingModule) {
+        echo "- $missingModule\n";
+    }
+}
 
 file_put_contents('output.json', str_replace('\/', '/', json_encode($json, JSON_PRETTY_PRINT)));
 echo "Wrote to output.json\n";
 
-$a = [
-    'silverstripe/admin',
-    'silverstripe/asset-admin',
-    'silverstripe/assets',
-    'silverstripe/campaign-admin',
-    'silverstripe/cms',
-    'silverstripe/config',
-    'silverstripe/errorpage',
-    'silverstripe/framework',
-    'silverstripe/developer-docs',
-    'silverstripe/graphql',
-    'silverstripe/login-forms',
-    'silverstripe/mimevalidator',
-    'silverstripe/reports',
-    'silverstripe/siteconfig',
-    'silverstripe/versioned',
-    'silverstripe/versioned-admin',
-];
-$v1s = [];
-$v2s = [];
-$n = '';
-foreach (explode("\n", file_get_contents('output.json')) as $line) {
-    if (preg_match('#"([a-zA-Z\-/]+)": {#', $line, $m)) {
-        $n = $m[1];
-    }
-    if (preg_match('#"Version": "([0-9a-z\-\.]+)"#', $line, $m)) {
-        $v = $m[1];
-        if (in_array($n, $a)) {
-            $v1s[$n] = $v;
-        } else {
-            $v2s[$n] = $v;
-        }
-    }
-}
-ksort($v1s);
-ksort($v2s);
-
-$vs = array_merge($v1s, $v2s);
-ksort($vs);
-
-$l = [
+$markup = [
     '<details>',
     '<summary>Included module versions</summary>',
     '',
     '| Module | Version |',
     '| ------ | ------- |',
 ];
-// foreach ($v1s as $n => $v) {
-//     $l[] = "| $n | $v |";
-// }
-// $l[] = '';
-// $l[] = '</details>';
-// $l[] = '<details>';
-// $l[] = '<summary>Supported module versions</summary>';
-// $l[] = '';
-// $l[] = '| Module | Version |';
-// $l[] = '| ------ | ------- |';
-// foreach ($v2s as $n => $v) {
-//     $l[] = "| $n | $v |";
-// }
-foreach ($vs as $n => $v) {
-    $l[] = "| $n | $v |";
-}
-$l[] = '';
-$l[] = '</details>';
-$l[] = '';
 
-$f = 'changelog-table.txt';
-file_put_contents($f, implode("\n", $l));
-echo "Wrote to $f\n";
+ksort($cowpatModules);
+foreach ($cowpatModules as $name => $version) {
+    if ($name === 'silverstripe/developer-docs') {
+        continue;
+    }
+    $markup[] = "| $name | $version |";
+}
+$markup[] = '';
+$markup[] = '</details>';
+$markup[] = '';
+
+$filename = 'changelog-table.txt';
+file_put_contents($filename, implode("\n", $markup));
+echo "Wrote to $filename\n";
