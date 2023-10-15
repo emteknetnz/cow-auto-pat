@@ -12,7 +12,6 @@ Add the following files to the root folder:
 
 Create the file `.credentials`
 ```
-user=my_github_username
 token=abcdef123456
 ```
 
