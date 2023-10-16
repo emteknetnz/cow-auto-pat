@@ -147,11 +147,10 @@ function getAccountRepo($name) {
     return [$account, $repo];
 }
 
-// returns username:token
+// returns token
 // https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
 // tick ZERO of the permission checkboxes since accessing public repos
 // .credentials
-// user=my_github_username
 // token=abcdef123456
 function getCredentials() {
     $data = [];
@@ -164,13 +163,10 @@ function getCredentials() {
         $value = $kv[1];
         $data[$key] = $value;
     }
-    if (!$data['user']) {
-        throw new Exception('.credentials is missing user=<user>');
-    }
     if (!$data['token']) {
         throw new Exception('.credentials is missing token=<token>');
     }
-    return $data['user'] . ':' . $data['token'];
+    return $data['token'];
 }
 
 $lastRequestTS = 0;
@@ -201,7 +197,8 @@ function fetch($path) {
     echo "Fetching from {$label}\n";
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_USERPWD, getCredentials());
+    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
+    curl_setopt($ch,CURLOPT_XOAUTH2_BEARER, getCredentials());
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:28.0) Gecko/20100101 Firefox/28.0'
     ]);
