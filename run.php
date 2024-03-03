@@ -184,6 +184,11 @@ function waitUntilCanFetch() {
 
 function fetch($path) {
     $domain = "https://api.github.com";
+    $path = str_replace(
+        'colymba/gridfield-bulk-editing-tools',
+        'colymba/GridfieldBulkEditingTools',
+        $path
+    );
     $path = ltrim($path, '/');
     if (preg_match('#/[0-9]+$#', $path) || preg_match('@/[0-9]+/files$@', $path)) {
         // requesting details
