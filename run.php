@@ -286,7 +286,7 @@ $json = json_decode(file_get_contents('.cow.pat.json'));
 $prior = json_decode(file_get_contents('.prior.cow.pat.json'));
 
 // uncomment this to regenerate release.sample.txt
-createReleaseSample(); die;
+// createReleaseSample(); die;
 
 // get prior versions
 foreach((array) $prior as $name => $data) {
