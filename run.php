@@ -250,6 +250,13 @@ function getNextMinorTag($name, $cowpatVersion, $upgradeOnly, $tagSuffix) {
     $vals = array_unique($vals);
     sort($vals);
     $vals = array_reverse($vals);
+    if (!isset($vals[0])) {
+        if ($name == 'silverstripe/linkfield') {
+            return '4.0.0';
+        }
+        echo "! Couldn't find any tags for $name";
+        die;
+    }
     $val = $vals[0];
     $major = floor($val / 10000);
     $minor = floor(($val % 10000) / 100);
@@ -279,7 +286,7 @@ $json = json_decode(file_get_contents('.cow.pat.json'));
 $prior = json_decode(file_get_contents('.prior.cow.pat.json'));
 
 // uncomment this to regenerate release.sample.txt
-// createReleaseSample(); die;
+createReleaseSample(); die;
 
 // get prior versions
 foreach((array) $prior as $name => $data) {
