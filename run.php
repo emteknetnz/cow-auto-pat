@@ -1,6 +1,7 @@
 <?php
 
 $priorVersions = [];
+$existingVersions = [];
 $oldMajors = [];
 $release = [];
 $lines = [];
@@ -28,6 +29,14 @@ function createReleaseSample() {
     }
     sort($lines);
     file_put_contents('release.sample.txt', implode("\n", $lines));
+}
+
+function updateExistingVersions($name, $data) {
+    global $existingVersions;
+    $existingVersions[$name] = $data->Version;
+    foreach ((array) $data->Items ?? [] as $name => $data) {
+        updateExistingVersions($name, $data);
+    }
 }
 
 function getPriorVersions($name, $data) {
@@ -288,6 +297,11 @@ $prior = json_decode(file_get_contents('.prior.cow.pat.json'));
 // uncomment this to regenerate release.sample.txt
 // createReleaseSample(); die;
 
+// get existing versions
+foreach((array) $json as $name => $data) {
+    updateExistingVersions($name, $data);
+}
+
 // get prior versions
 foreach((array) $prior as $name => $data) {
     getPriorVersions($name, $data);
@@ -325,6 +339,7 @@ if (!empty($missingFromRelease)) {
 file_put_contents('output.json', str_replace('\/', '/', json_encode($json, JSON_PRETTY_PRINT)));
 echo "Wrote to output.json\n";
 
+// changelog-table-next.txt
 $markup = [
     '<details>',
     '<summary>Included module versions</summary>',
@@ -332,7 +347,6 @@ $markup = [
     '| Module | Version |',
     '| ------ | ------- |',
 ];
-
 ksort($cowpatModules);
 foreach ($cowpatModules as $name => $version) {
     if ($name === 'silverstripe/developer-docs') {
@@ -344,6 +358,29 @@ $markup[] = '';
 $markup[] = '</details>';
 $markup[] = '';
 
-$filename = 'changelog-table.txt';
+$filename = 'changelog-table-next.txt';
+file_put_contents($filename, implode("\n", $markup));
+echo "Wrote to $filename\n";
+
+// changelog-table-existing.txt
+$markup = [
+    '<details>',
+    '<summary>Included module versions</summary>',
+    '',
+    '| Module | Version |',
+    '| ------ | ------- |',
+];
+foreach (array_keys($cowpatModules) as $name) {
+    $version = $existingVersions[$name];
+    if ($name === 'silverstripe/developer-docs') {
+        continue;
+    }
+    $markup[] = "| $name | $version |";
+}
+$markup[] = '';
+$markup[] = '</details>';
+$markup[] = '';
+
+$filename = 'changelog-table-existing.txt';
 file_put_contents($filename, implode("\n", $markup));
 echo "Wrote to $filename\n";

@@ -4,4 +4,5 @@
 *.json
 release.txt
 debug
-changelog-table.txt
+changelog-table-existing.txt
+changelog-table-next.txt
