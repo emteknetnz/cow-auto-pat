@@ -75,4 +75,4 @@ symbiote/silverstripe-advancedworkflow,0
 symbiote/silverstripe-gridfieldextensions,0
 symbiote/silverstripe-multivaluefield,0
 symbiote/silverstripe-queuedjobs,0
-tractorcow/silverstripe-fluent,U
+tractorcow/silverstripe-fluent,1
