@@ -150,7 +150,7 @@ function getAccountRepo($name) {
     }
     // colymba
     if ($account == 'colymba' && $repo == 'gridfield-bulk-editing-tools') {
-        return ['colymba', 'GridFieldBulkEditingTools'];
+        return ['silverstripe', 'silverstripe-gridfield-bulk-editing-tools'];
     }
     // everything else
     return [$account, $repo];
@@ -159,23 +159,14 @@ function getAccountRepo($name) {
 // returns token
 // https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
 // tick ZERO of the permission checkboxes since accessing public repos
-// .credentials
-// token=abcdef123456
 function getCredentials() {
-    $data = [];
-    $s = file_get_contents('.credentials');
-    $lines = preg_split('/[\r\n]/', $s);
-    foreach ($lines as $line) {
-        $kv = preg_split('/=/', $line);
-        if (count($kv) != 2) break;
-        $key = $kv[0];
-        $value = $kv[1];
-        $data[$key] = $value;
+    // read GH_TOKEN from environment variable
+    $token = getenv('GH_TOKEN');
+    if (!$token) {
+        throw new Exception('Missing GH_TOKEN env variable');
     }
-    if (!$data['token']) {
-        throw new Exception('.credentials is missing token=<token>');
-    }
-    return $data['token'];
+    var_dump($token);die;
+    return $token;
 }
 
 $lastRequestTS = 0;
