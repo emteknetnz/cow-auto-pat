@@ -165,7 +165,6 @@ function getCredentials() {
     if (!$token) {
         throw new Exception('Missing GH_TOKEN env variable');
     }
-    var_dump($token);die;
     return $token;
 }
 
