@@ -1,6 +1,6 @@
 bringyourownideas/silverstripe-composer-update-checker,0
 bringyourownideas/silverstripe-maintenance,0
-colymba/gridfield-bulk-editing-tools,0
+silverstripe/silverstipe-gridfield-bulk-editing-tools,0
 cwp/agency-extensions,0
 cwp/starter-theme,0
 cwp/watea-theme,0
