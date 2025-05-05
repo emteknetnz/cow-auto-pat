@@ -8,7 +8,7 @@ $lines = [];
 
 $j = json_decode(file_get_contents('.cow.pat.json'));
 $v = $j->{'silverstripe/recipe-kitchen-sink'}->Version;
-$b = preg_match('#-(beta1|beta2|beta3|rc1|rc2|rc3)$#', $v, $m);
+$b = preg_match('#-(alpha1|beta1|beta2|beta3|rc1|rc2|rc3)$#', $v, $m);
 $tagSuffix = $b ? '-' . $m[1] : '';
 
 if (file_exists('release.txt')) {
@@ -67,18 +67,9 @@ function outputRelease($name, &$data) {
     global $lines;
     $alwaysRelease = [
         // LOCKSTEP RECIPES
-        'silverstripe/recipe-authoring-tools',
-        'silverstripe/recipe-blog',
-        'silverstripe/recipe-ccl',
         'silverstripe/recipe-cms',
-        'silverstripe/recipe-collaboration',
-        'silverstripe/recipe-content-blocks',
         'silverstripe/recipe-core',
-        'silverstripe/recipe-form-building',
         'silverstripe/recipe-kitchen-sink',
-        'silverstripe/recipe-reporting-tools',
-        'silverstripe/recipe-services',
-        'silverstripe/recipe-solr-search',
         'silverstripe/installer',
         // LOCKSTEP CORE MODULES
         'silverstripe/framework',
@@ -90,7 +81,7 @@ function outputRelease($name, &$data) {
         'silverstripe/campaign-admin',
         'silverstripe/cms',
         'silverstripe/reports',
-        'silverstripe/errorpoage',
+        'silverstripe/errorpage',
         'silverstripe/siteconfig',
         // ALSO ALWAYS RELEASE
         'silverstripe/developer-docs',
@@ -119,26 +110,12 @@ function getAccountRepo($name) {
         }
         // module not prefixed with 'silverstripe-'
         if (in_array($repo, [
-            'comment-notifications',
             'vendor-plugin',
-            // silverstripe/silverstripe-fluent fork
-            'silverstripe-fluent',
             'developer-docs',
         ])) {
             return [$account, $repo];
         }
         return ['silverstripe', 'silverstripe-' . $repo];
-    }
-    // cwp account
-    if ($account == 'cwp') {
-        if ($repo == 'agency-extensions') {
-            return ['silverstripe', 'cwp-agencyextensions'];
-        }
-        if (strpos($repo, 'cwp') === 0) {
-            return ['silverstripe', $repo];
-        } else {
-            return ['silverstripe', 'cwp-' . $repo];
-        }
     }
     // dnadesign
     if ($account == 'dnadesign' && $repo == 'silverstripe-elemental') {
@@ -185,7 +162,7 @@ function fetch($path) {
     $domain = "https://api.github.com";
     $path = str_replace(
         'colymba/gridfield-bulk-editing-tools',
-        'colymba/GridfieldBulkEditingTools',
+        'silverstripe/silverstripe-gridfield-bulk-editing-tools',
         $path
     );
     $path = ltrim($path, '/');
@@ -250,8 +227,8 @@ function getNextMinorTag($name, $cowpatVersion, $upgradeOnly, $tagSuffix) {
     sort($vals);
     $vals = array_reverse($vals);
     if (!isset($vals[0])) {
-        if ($name == 'silverstripe/linkfield') {
-            return '4.0.0';
+        if ($name == 'silverstripe/template-engine') {
+            return '1.0.0';
         }
         echo "! Couldn't find any tags for $name";
         die;
