@@ -1,7 +1,7 @@
 colymba/gridfield-bulk-editing-tools,0
 dnadesign/silverstripe-elemental,0
 dnadesign/silverstripe-elemental-userforms,0
-silverstripe-themes/simple,0
+silverstripe/startup-theme,0
 silverstripe/admin,1
 silverstripe/asset-admin,1
 silverstripe/assets,1

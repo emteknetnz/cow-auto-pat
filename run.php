@@ -67,18 +67,9 @@ function outputRelease($name, &$data) {
     global $lines;
     $alwaysRelease = [
         // LOCKSTEP RECIPES
-        'silverstripe/recipe-authoring-tools',
-        'silverstripe/recipe-blog',
-        'silverstripe/recipe-ccl',
         'silverstripe/recipe-cms',
-        'silverstripe/recipe-collaboration',
-        'silverstripe/recipe-content-blocks',
         'silverstripe/recipe-core',
-        'silverstripe/recipe-form-building',
         'silverstripe/recipe-kitchen-sink',
-        'silverstripe/recipe-reporting-tools',
-        'silverstripe/recipe-services',
-        'silverstripe/recipe-solr-search',
         'silverstripe/installer',
         // LOCKSTEP CORE MODULES
         'silverstripe/framework',
@@ -87,10 +78,9 @@ function outputRelease($name, &$data) {
         'silverstripe/admin',
         'silverstripe/asset-admin',
         'silverstripe/versioned-admin',
-        'silverstripe/campaign-admin',
         'silverstripe/cms',
         'silverstripe/reports',
-        'silverstripe/errorpoage',
+        'silverstripe/errorpage',
         'silverstripe/siteconfig',
         // ALSO ALWAYS RELEASE
         'silverstripe/developer-docs',
@@ -121,6 +111,7 @@ function getAccountRepo($name) {
         if (in_array($repo, [
             'comment-notifications',
             'vendor-plugin',
+            'startup-theme',
             // silverstripe/silverstripe-fluent fork
             'silverstripe-fluent',
             'developer-docs',
@@ -140,9 +131,16 @@ function getAccountRepo($name) {
             return ['silverstripe', 'cwp-' . $repo];
         }
     }
+    // symbiote
+    if ($account == 'symbiote') {
+        return ['silverstripe', $repo];
+    }
     // dnadesign
     if ($account == 'dnadesign' && $repo == 'silverstripe-elemental') {
-        return ['silverstripe', $repo];
+        return ['silverstripe', 'silverstripe-elemental'];
+    }
+    if ($account == 'dnadesign' && $repo == 'silverstripe-elemental-userforms') {
+        return ['silverstripe', 'silverstripe-elemental-userforms'];
     }
     // tractorcow
     if ($account == 'tractorcow' && $repo == 'silverstripe-fluent') {
