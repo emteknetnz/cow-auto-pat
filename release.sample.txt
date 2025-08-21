@@ -11,7 +11,7 @@ silverstripe/config,0
 silverstripe/developer-docs,1
 silverstripe/dynamodb,0
 silverstripe/environmentcheck,0
-silverstripe/errorpage,0
+silverstripe/errorpage,1
 silverstripe/framework,1
 silverstripe/graphql,0
 silverstripe/gridfieldqueuedexport,0
