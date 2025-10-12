@@ -1,7 +1,8 @@
 <?php
 
 // Run this script to check for new patch releases in the JSON files.
-// It compares the old JSON file (.cow.pat.json) with the new JSON file (output.json)
+// It compares the old JSON file (.cow.pat.json) (e.g. the -rc1 version)
+// with the new JSON file (freshly generated output.json for the stable version).
 // This is intended to be run during the stable release when the rc plan
 // is copied to the stable plan and the -rc versions is removed.
 
